@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Link, Redirect } from 'react-router-dom';
 
-/* const SERVER = `http://localhost:3001`;
- */ const SERVER = ``;
-
 class Registration extends Component {
   state = {
     name: '',
@@ -14,77 +11,34 @@ class Registration extends Component {
     password_confirm: '',
     fireRedirect: false,
   };
-  componentDidMount = () => {
-    console.log(this.state);
-  };
+  componentDidMount = () => console.log(this.state);
 
   handleInputChange = event => {
-    let name = event.target.name;
-    let value = event.target.value;
-
-    console.log(event.target.name);
-    console.log(event.target.value);
-
-    this.setState({
-      [name]: value,
-    });
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
   };
 
-  handleFormSubmit = event => {
+  handleFormSubmit = async event => {
     event.preventDefault();
-    console.log('inside handleformsubmit');
-    if (
-      this.state.password_digest ===
-      this.state.password_confirm
-    ) {
-      // fetch POST request to server to create new user
-      // redirect to their profile? back two pages?
-
-      let data = {
-        name: this.state.name,
-        username: this.state.username,
-        email: this.state.email,
-        password_digest: this.state
-          .password_digest,
-      };
-      //routes here are not valid revist
-      axios({
-        method: 'POST',
-        url: `${SERVER}/auth/register`,
-        data: data,
-      })
-        .then(res => {
-          console.log('res.data---->', res.data);
-          this.props.userDataForState(res);
-          this.setState({
-            newID: res.data.id,
-            //The res.data.id might be wrong here
-            fireRedirect: true,
-          });
-        })
-        .catch(err => console.log(err));
+    const { password_digest, password_confirm, email, username, name } = this.state;
+    if (password_digest != password_confirm) {
+      alert('Passwords do not match..');
+      return this.setState({ password_digest: '', password_confirm: '' });
+    }
+    const data = { name, username, email, password_digest };
+    try {
+      const res = await axios({ method: 'POST', url: `/auth/register`, data });
+      this.props.userDataForState(res);
+      this.setState({ newID: res.data.id, fireRedirect: true })
+    }
+    catch (err) {
+      console.log(err);
       event.target.reset();
-    } else {
-      alert(
-        'Passwords do not match.. THIS IS THE ELSE STATEMENT',
-      );
-      // we can update the alert later to be more complex
-      this.setState({
-        password_digest: '',
-        password_confirm: '',
-      });
     }
   };
 
   render = () => {
-    const {
-      name,
-      username,
-      email,
-      password_digest,
-      password_confirm,
-      fireRedirect,
-    } = this.state;
+    const { name, username, email, password_digest, password_confirm, fireRedirect } = this.state;
     return (
       <div className="login-register">
         <div className="top">
@@ -97,37 +51,27 @@ class Registration extends Component {
         </div>
 
         <div className="form">
-          <form
-            onSubmit={event => {
-              this.handleFormSubmit(event);
-            }}
-          >
+          <form onSubmit={event => this.handleFormSubmit(event)} >
             <input
               type="text"
               placeholder="Name"
               name="name"
               value={name}
-              onChange={event => {
-                this.handleInputChange(event);
-              }}
+              onChange={event => this.handleInputChange(event)}
             />
             <input
               type="text"
               placeholder="Username"
               name="username"
               value={username}
-              onChange={event => {
-                this.handleInputChange(event);
-              }}
+              onChange={event => this.handleInputChange(event)}
             />
             <input
               type="email"
               placeholder="Email"
               name="email"
               value={email}
-              onChange={event => {
-                this.handleInputChange(event);
-              }}
+              onChange={event => this.handleInputChange(event)}
             />
             <input
               type="password"
@@ -136,9 +80,7 @@ class Registration extends Component {
               minLength="6"
               required
               value={password_digest}
-              onChange={event => {
-                this.handleInputChange(event);
-              }}
+              onChange={event => this.handleInputChange(event)}
             />
             <input
               type="password"
@@ -147,22 +89,17 @@ class Registration extends Component {
               minLength="6"
               required
               value={password_confirm}
-              onChange={event => {
-                this.handleInputChange(event);
-              }}
+              onChange={event => this.handleInputChange(event)}
             />
             <input
               type="submit"
               value="Register"
             />
           </form>
-          {fireRedirect ? (
-            <Redirect push to={`/`} />
-          ) : (
-            ''
-          )}
+          {fireRedirect ? <Redirect push to={`/`} /> : ('')}
         </div>
-        <Link to={`/auth/login`}>
+        <Link
+          to={`/auth/login`}>
           Already registered? Log in here!
         </Link>
       </div>
