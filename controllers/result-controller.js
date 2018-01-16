@@ -3,46 +3,38 @@ const Location = require('../models/location')
 
 const resultsController = {};
 
-resultsController.queryResults = (req, res) =>{
+resultsController.queryResults = async (req, res) => {
     console.log('queryResults(results-Controller)');
-    Music2locations.results(res.locals.allZips)
-    .then( results => {
-        console.log(results,'this was the results controller')
-        res.json({
-            message: 'ok',
-            data: results,
-            events: res.locals.events
-        })
-    }).catch( err => {
-        console.log(err)
-        res.status(500).json({
-            message: 'page not found',
-            error: err
-        })
-    })
+    try {
+        const results = await Music2locations.results(res.locals.allZips);
+        console.log(results, 'this was the results controller');
+        res.json({ message: 'ok', data: results, events: res.locals.events });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'page not found', error });
+    }
 }
 
-resultsController.insertLocation = (req, res, next) => {
+resultsController.insertLocation = async (req, res, next) => {
     console.log('insertLocation reached');
     console.log(req.body)
-    Location.insert(req.body.zipcode,req.body.description)
-    .then( data => {
+    try {
+        const data = await Location.insert(req.body.zipcode, req.body.description);
         res.locals.id = data.id;
         next();
-    })
-    .catch( err => console.log(err) )
+    }
+    catch (err) { console.log(err) };
 }
 
-resultsController.insertMusic2Location = (req, res, next) => {
+resultsController.insertMusic2Location = async (req, res, next) => {
     console.log('music2locations reached');
-    let data = {
-        genre_id: req.body.genre,
-        location_id: res.locals.id,
-        user_id: req.body.id
+    const data = {genre_id: req.body.genre,location_id: res.locals.id,user_id: req.body.id}
+    try {
+        await Music2locations.insert(data);
+        next();
     }
-    Music2locations.insert(data)
-    .then( () => next() )
-    .catch(err => console.log(err) )
+    catch (err) { console.log(err) };
 }
 
 module.exports = resultsController;

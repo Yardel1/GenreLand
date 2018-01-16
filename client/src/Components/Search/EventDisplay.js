@@ -1,8 +1,8 @@
 import React from 'react';
 
 const EventDisplay = (props) => {
-  const { areaName, eventList, userLocation} = props
-   return (
+  const { areaName, eventList, userLocation } = props
+  return (
       <div className="EventResults">
         <h1 className={userLocation?"markzipcode":''}>{areaName}</h1>
         <ul>

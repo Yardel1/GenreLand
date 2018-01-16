@@ -27,7 +27,7 @@ app.use(
   cookieSession({
     name: 'session',
     keys: [process.env.SECRET_KEY],
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    maxAge: 24 * 60 * 60 * 1000
   }),
 );
 app.use(flash());
@@ -43,9 +43,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}!`);
-});
+app.listen(PORT, () => console.log(`listening on port ${PORT}!`));
 
 // app.get('/', (req, res) => {
 //     res.send('hello world')
@@ -63,10 +61,6 @@ app.use('/results', resultsRoutes);
 const authRoutes = require('./routes/auth-routes');
 app.use('/auth', authRoutes);
 
-app.get('/favicon.ico', function(req, res) {
-  res.status(204);
-});
+app.get('/favicon.ico', (req, res) => res.status(204));
 
-app.get('*', (req, res) => {
-  res.send('404error');
-});
+app.get('*', (req, res) => res.send('404error'));
